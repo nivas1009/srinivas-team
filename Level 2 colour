@@ -1,0 +1,61 @@
+import cv2
+import numpy as np
+
+def detect_color_from_image(image_path, lower_color_bound, upper_color_bound):
+    """
+    Detects a specific color in an image and displays the results.
+
+    Args:
+        image_path (str): The path to the image file.
+        lower_color_bound (tuple): The lower bound of the color in HSV format.
+        upper_color_bound (tuple): The upper bound of the color in HSV format.
+    """
+    try:
+        # 1. Load the image
+        original_image = cv2.imread(image_path)
+        if original_image is None:
+            print("Error: Could not read the image file.")
+            return
+
+        # 2. Convert the image to HSV color space
+        hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
+
+        # 3. Create a mask based on the color range
+        # This will create a binary image where white pixels are within the range
+        # and black pixels are outside the range.
+        mask = cv2.inRange(hsv_image, lower_color_bound, upper_color_bound)
+
+        # 4. Apply the mask to the original image to get the detected color
+        # The bitwise_and operation keeps only the parts of the original image
+        # that correspond to the white pixels in the mask.
+        detected_color_image = cv2.bitwise_and(original_image, original_image, mask=mask)
+
+        # 5. Display the results
+        cv2.imshow("Original Image", original_image)
+        cv2.imshow("Color Detection Mask", mask)
+        cv2.imshow("Detected Color", detected_color_image)
+
+        # Wait for a key press to close the windows
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+# Example Usage:
+if __name__ == "__main__":
+    # Specify the path to your image
+    image_file = 'your_image.jpg' # ⚠️ Replace with the actual path to your image file
+
+    # Define the HSV ranges for a specific color (e.g., green)
+    # These values can be tuned based on the specific shade of the color you are looking for.
+    # Hue: 0-179, Saturation: 0-255, Value: 0-255
+    lower_green = np.array([40, 40, 40])
+    upper_green = np.array([80, 255, 255])
+    
+    # You can define other colors as well, e.g., blue
+    # lower_blue = np.array([100, 50, 50])
+    # upper_blue = np.array([140, 255, 255])
+
+    detect_color_from_image(image_file, lower_green, upper_green)
+
